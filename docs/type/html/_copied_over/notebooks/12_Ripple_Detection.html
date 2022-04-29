@@ -1,0 +1,1943 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="copyright" title="Copyright" href="../../copyright.html" />
+
+    <link rel="shortcut icon" href="../../_static/lorenLabImage.png"/><!-- Generated with Sphinx 6.1.3 and Furo 2023.03.27 -->
+        <title>Ripple Detection - Spyglass 0.3.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/datajoint_header.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Spyglass 0.3.4 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/spyglass.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Spyglass 0.3.4 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="0_intro.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_spikesorting.html">Spike Sorting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2_curation.html">Curation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3_lfp.html">LFP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4_position_info.html">Position Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_linearization.html">Linearization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="6_Extract_Mark_indicators.html">Extact Mark Indicators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="7_Decoding_with_GPUs_on_the_GPU_cluster.html">GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8_1D_Clusterless_Decoding.html">1D Clusterless Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="9_2D_Clusterless_Decoding.html">2D Clusterless Decoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../_autosummary/spyglass.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/spyglass.cli.html">spyglass.cli</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.cli.cli.html">spyglass.cli.cli</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.html">spyglass.common</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_backup.html">spyglass.common.common_backup</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_backup.CuratedSpikeSortingBackUp.html">spyglass.common.common_backup.CuratedSpikeSortingBackUp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_backup.SpikeSortingBackUp.html">spyglass.common.common_backup.SpikeSortingBackUp</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_behav.html">spyglass.common.common_behav</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_behav.PositionSource.html">spyglass.common.common_behav.PositionSource</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_behav.RawPosition.html">spyglass.common.common_behav.RawPosition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_behav.StateScriptFile.html">spyglass.common.common_behav.StateScriptFile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_behav.VideoFile.html">spyglass.common.common_behav.VideoFile</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_device.html">spyglass.common.common_device</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_device.CameraDevice.html">spyglass.common.common_device.CameraDevice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_device.DataAcquisitionDevice.html">spyglass.common.common_device.DataAcquisitionDevice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_device.DataAcquisitionDeviceAmplifier.html">spyglass.common.common_device.DataAcquisitionDeviceAmplifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_device.DataAcquisitionDeviceSystem.html">spyglass.common.common_device.DataAcquisitionDeviceSystem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_device.Probe.html">spyglass.common.common_device.Probe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_device.ProbeType.html">spyglass.common.common_device.ProbeType</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_dio.html">spyglass.common.common_dio</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_dio.DIOEvents.html">spyglass.common.common_dio.DIOEvents</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.html">spyglass.common.common_ephys</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.Electrode.html">spyglass.common.common_ephys.Electrode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.ElectrodeBrainRegion.html">spyglass.common.common_ephys.ElectrodeBrainRegion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.ElectrodeGroup.html">spyglass.common.common_ephys.ElectrodeGroup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.LFP.html">spyglass.common.common_ephys.LFP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.LFPBand.html">spyglass.common.common_ephys.LFPBand</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.LFPBandSelection.html">spyglass.common.common_ephys.LFPBandSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.LFPSelection.html">spyglass.common.common_ephys.LFPSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.Raw.html">spyglass.common.common_ephys.Raw</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ephys.SampleCount.html">spyglass.common.common_ephys.SampleCount</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_filter.html">spyglass.common.common_filter</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_filter.FirFilter.html">spyglass.common.common_filter.FirFilter</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_interval.html">spyglass.common.common_interval</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_interval.IntervalList.html">spyglass.common.common_interval.IntervalList</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_lab.html">spyglass.common.common_lab</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_lab.Institution.html">spyglass.common.common_lab.Institution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_lab.Lab.html">spyglass.common.common_lab.Lab</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_lab.LabMember.html">spyglass.common.common_lab.LabMember</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_lab.LabTeam.html">spyglass.common.common_lab.LabTeam</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_nwbfile.html">spyglass.common.common_nwbfile</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_nwbfile.AnalysisNwbfile.html">spyglass.common.common_nwbfile.AnalysisNwbfile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_nwbfile.AnalysisNwbfileKachery.html">spyglass.common.common_nwbfile.AnalysisNwbfileKachery</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_nwbfile.Nwbfile.html">spyglass.common.common_nwbfile.Nwbfile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_nwbfile.NwbfileKachery.html">spyglass.common.common_nwbfile.NwbfileKachery</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.html">spyglass.common.common_position</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.IntervalLinearizationSelection.html">spyglass.common.common_position.IntervalLinearizationSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.IntervalLinearizedPosition.html">spyglass.common.common_position.IntervalLinearizedPosition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.IntervalPositionInfo.html">spyglass.common.common_position.IntervalPositionInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.IntervalPositionInfoSelection.html">spyglass.common.common_position.IntervalPositionInfoSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.LinearizationParameters.html">spyglass.common.common_position.LinearizationParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.NodePicker.html">spyglass.common.common_position.NodePicker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.PositionInfoParameters.html">spyglass.common.common_position.PositionInfoParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.PositionVideo.html">spyglass.common.common_position.PositionVideo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.SelectFromCollection.html">spyglass.common.common_position.SelectFromCollection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_position.TrackGraph.html">spyglass.common.common_position.TrackGraph</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_region.html">spyglass.common.common_region</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_region.BrainRegion.html">spyglass.common.common_region.BrainRegion</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ripple.html">spyglass.common.common_ripple</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ripple.RippleLFPSelection.html">spyglass.common.common_ripple.RippleLFPSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ripple.RippleParameters.html">spyglass.common.common_ripple.RippleParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_ripple.RippleTimes.html">spyglass.common.common_ripple.RippleTimes</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_sensors.html">spyglass.common.common_sensors</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_sensors.SensorData.html">spyglass.common.common_sensors.SensorData</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_session.html">spyglass.common.common_session</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_session.Session.html">spyglass.common.common_session.Session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_session.SessionGroup.html">spyglass.common.common_session.SessionGroup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_session.SessionGroupSession.html">spyglass.common.common_session.SessionGroupSession</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_subject.html">spyglass.common.common_subject</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_subject.Subject.html">spyglass.common.common_subject.Subject</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.common_task.html">spyglass.common.common_task</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_task.Task.html">spyglass.common.common_task.Task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.common_task.TaskEpoch.html">spyglass.common.common_task.TaskEpoch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.common.errors.html">spyglass.common.errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.common.populate_all_common.html">spyglass.common.populate_all_common</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.common.prepopulate.html">spyglass.common.prepopulate</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.common.prepopulate.prepopulate.html">spyglass.common.prepopulate.prepopulate</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.common.signal_processing.html">spyglass.common.signal_processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/spyglass.data_import.html">spyglass.data_import</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.data_import.insert_sessions.html">spyglass.data_import.insert_sessions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.data_import.storage_dirs.html">spyglass.data_import.storage_dirs</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/spyglass.decoding.html">spyglass.decoding</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.html">spyglass.decoding.clusterless</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.ClusterlessClassifierParameters.html">spyglass.decoding.clusterless.ClusterlessClassifierParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.MarkParameters.html">spyglass.decoding.clusterless.MarkParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.MultiunitFiringRate.html">spyglass.decoding.clusterless.MultiunitFiringRate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.MultiunitHighSynchronyEvents.html">spyglass.decoding.clusterless.MultiunitHighSynchronyEvents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.MultiunitHighSynchronyEventsParameters.html">spyglass.decoding.clusterless.MultiunitHighSynchronyEventsParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.UnitMarkParameters.html">spyglass.decoding.clusterless.UnitMarkParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.UnitMarks.html">spyglass.decoding.clusterless.UnitMarks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.UnitMarksIndicator.html">spyglass.decoding.clusterless.UnitMarksIndicator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.clusterless.UnitMarksIndicatorSelection.html">spyglass.decoding.clusterless.UnitMarksIndicatorSelection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.decoding.core.html">spyglass.decoding.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.decoding.dj_decoder_conversion.html">spyglass.decoding.dj_decoder_conversion</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.decoding.sorted_spikes.html">spyglass.decoding.sorted_spikes</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.sorted_spikes.SortedSpikesClassifierParameters.html">spyglass.decoding.sorted_spikes.SortedSpikesClassifierParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.sorted_spikes.SortedSpikesIndicator.html">spyglass.decoding.sorted_spikes.SortedSpikesIndicator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.decoding.sorted_spikes.SortedSpikesIndicatorSelection.html">spyglass.decoding.sorted_spikes.SortedSpikesIndicatorSelection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.decoding.visualization.html">spyglass.decoding.visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.decoding.visualization_1D_view.html">spyglass.decoding.visualization_1D_view</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.decoding.visualization_2D_view.html">spyglass.decoding.visualization_2D_view</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/spyglass.settings.html">spyglass.settings</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/spyglass.sharing.html">spyglass.sharing</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.sharing.sharing_kachery.html">spyglass.sharing.sharing_kachery</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.sharing.sharing_kachery.AnalysisNwbfileKachery.html">spyglass.sharing.sharing_kachery.AnalysisNwbfileKachery</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.sharing.sharing_kachery.AnalysisNwbfileKacherySelection.html">spyglass.sharing.sharing_kachery.AnalysisNwbfileKacherySelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.sharing.sharing_kachery.KacherySharingGroup.html">spyglass.sharing.sharing_kachery.KacherySharingGroup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.sharing.sharing_kachery.NwbfileKachery.html">spyglass.sharing.sharing_kachery.NwbfileKachery</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.sharing.sharing_kachery.NwbfileKacherySelection.html">spyglass.sharing.sharing_kachery.NwbfileKacherySelection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.html">spyglass.spikesorting</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.curation_figurl.html">spyglass.spikesorting.curation_figurl</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.curation_figurl.CurationFigurl.html">spyglass.spikesorting.curation_figurl.CurationFigurl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.curation_figurl.CurationFigurlSelection.html">spyglass.spikesorting.curation_figurl.CurationFigurlSelection</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.merged_sorting_extractor.html">spyglass.spikesorting.merged_sorting_extractor</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.merged_sorting_extractor.MergedSortingExtractor.html">spyglass.spikesorting.merged_sorting_extractor.MergedSortingExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.merged_sorting_extractor.MergedSortingSegment.html">spyglass.spikesorting.merged_sorting_extractor.MergedSortingSegment</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.sortingview.html">spyglass.spikesorting.sortingview</a><input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.sortingview.SortingviewWorkspace.html">spyglass.spikesorting.sortingview.SortingviewWorkspace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.sortingview.SortingviewWorkspaceSelection.html">spyglass.spikesorting.sortingview.SortingviewWorkspaceSelection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.sortingview_helper_fn.html">spyglass.spikesorting.sortingview_helper_fn</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_artifact.html">spyglass.spikesorting.spikesorting_artifact</a><input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_artifact.ArtifactDetection.html">spyglass.spikesorting.spikesorting_artifact.ArtifactDetection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_artifact.ArtifactDetectionParameters.html">spyglass.spikesorting.spikesorting_artifact.ArtifactDetectionParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_artifact.ArtifactDetectionSelection.html">spyglass.spikesorting.spikesorting_artifact.ArtifactDetectionSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_artifact.ArtifactRemovedIntervalList.html">spyglass.spikesorting.spikesorting_artifact.ArtifactRemovedIntervalList</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.html">spyglass.spikesorting.spikesorting_curation</a><input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.AutomaticCuration.html">spyglass.spikesorting.spikesorting_curation.AutomaticCuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.AutomaticCurationParameters.html">spyglass.spikesorting.spikesorting_curation.AutomaticCurationParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.AutomaticCurationSelection.html">spyglass.spikesorting.spikesorting_curation.AutomaticCurationSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.CuratedSpikeSorting.html">spyglass.spikesorting.spikesorting_curation.CuratedSpikeSorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.CuratedSpikeSortingSelection.html">spyglass.spikesorting.spikesorting_curation.CuratedSpikeSortingSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.Curation.html">spyglass.spikesorting.spikesorting_curation.Curation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.MetricParameters.html">spyglass.spikesorting.spikesorting_curation.MetricParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.MetricSelection.html">spyglass.spikesorting.spikesorting_curation.MetricSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.QualityMetrics.html">spyglass.spikesorting.spikesorting_curation.QualityMetrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.UnitInclusionParameters.html">spyglass.spikesorting.spikesorting_curation.UnitInclusionParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.WaveformParameters.html">spyglass.spikesorting.spikesorting_curation.WaveformParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.WaveformSelection.html">spyglass.spikesorting.spikesorting_curation.WaveformSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_curation.Waveforms.html">spyglass.spikesorting.spikesorting_curation.Waveforms</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_recording.html">spyglass.spikesorting.spikesorting_recording</a><input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_recording.SortGroup.html">spyglass.spikesorting.spikesorting_recording.SortGroup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_recording.SortInterval.html">spyglass.spikesorting.spikesorting_recording.SortInterval</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_recording.SpikeSortingPreprocessingParameters.html">spyglass.spikesorting.spikesorting_recording.SpikeSortingPreprocessingParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_recording.SpikeSortingRecording.html">spyglass.spikesorting.spikesorting_recording.SpikeSortingRecording</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_recording.SpikeSortingRecordingSelection.html">spyglass.spikesorting.spikesorting_recording.SpikeSortingRecordingSelection</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_sorting.html">spyglass.spikesorting.spikesorting_sorting</a><input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_sorting.SpikeSorterParameters.html">spyglass.spikesorting.spikesorting_sorting.SpikeSorterParameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_sorting.SpikeSorting.html">spyglass.spikesorting.spikesorting_sorting.SpikeSorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/spyglass.spikesorting.spikesorting_sorting.SpikeSortingSelection.html">spyglass.spikesorting.spikesorting_sorting.SpikeSortingSelection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/spyglass.utils.html">spyglass.utils</a><input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.utils.dj_helper_fn.html">spyglass.utils.dj_helper_fn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/spyglass.utils.nwb_helper_fn.html">spyglass.utils.nwb_helper_fn</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_contribute.html">How to Contribute</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../misc.html">Miscellaneous</a><input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" role="switch" type="checkbox"/><label for="toctree-checkbox-37"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../figurl_views.html">Figurl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../session_groups.html">Session Groups</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../copyright.html">Copyright</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="Ripple-Detection">
+<h1>Ripple Detection<a class="headerlink" href="#Ripple-Detection" title="Permalink to this heading">#</a></h1>
+<p>Ripple detection depends on a set of LFPs, the parameters used for detection and the speed of the animal. You will need <code class="docutils literal notranslate"><span class="pre">RippleLFPSelection</span></code>, <code class="docutils literal notranslate"><span class="pre">RippleParameters</span></code>, and <code class="docutils literal notranslate"><span class="pre">IntervalPositionInfo</span></code> to be populated accordingly. Let’s import these:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spyglass.common.common_ripple</span> <span class="kn">import</span> <span class="n">RippleLFPSelection</span><span class="p">,</span> <span class="n">RippleParameters</span><span class="p">,</span> <span class="n">RippleTimes</span>
+<span class="kn">from</span> <span class="nn">spyglass.common</span> <span class="kn">import</span> <span class="n">IntervalPositionInfo</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[2022-11-28 14:37:02,551][INFO]: Connecting edeno@lmf-db.cin.ucsf.edu:3306
+[2022-11-28 14:37:02,627][INFO]: Connected edeno@lmf-db.cin.ucsf.edu:3306
+/home/edeno/miniconda3/envs/spyglass/lib/python3.9/site-packages/position_tools/core.py:3: DeprecationWarning: Please use `gaussian_filter1d` from the `scipy.ndimage` namespace, the `scipy.ndimage.filters` namespace is deprecated.
+  from scipy.ndimage.filters import gaussian_filter1d
+</pre></div></div>
+</div>
+<section id="1.-Selecting-Electrodes">
+<h2>1. Selecting Electrodes<a class="headerlink" href="#1.-Selecting-Electrodes" title="Permalink to this heading">#</a></h2>
+<p>First let’s pick which electrodes we want to do ripple detection on. This involves the calling the method <code class="docutils literal notranslate"><span class="pre">set_lfp_electrodes</span></code> from <code class="docutils literal notranslate"><span class="pre">RippleLFPSelection</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>RippleLFPSelection.set_lfp_electrodes<span class="o">?</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">Signature:</span>
+RippleLFPSelection<span class="ansi-blue-fg">.</span>set_lfp_electrodes<span class="ansi-blue-fg">(</span>
+    nwb_file_name<span class="ansi-blue-fg">,</span>
+    electrode_list<span class="ansi-blue-fg">,</span>
+    group_name<span class="ansi-blue-fg">=</span><span class="ansi-blue-fg">&#39;CA1&#39;</span><span class="ansi-blue-fg">,</span>
+<span class="ansi-blue-fg">)</span>
+<span class="ansi-red-fg">Docstring:</span>
+Removes all electrodes for the specified nwb file and then adds back the electrodes in the list
+
+Parameters
+----------
+nwb_file_name : str
+    The name of the nwb file for the desired session
+electrode_list : list
+    list of electrodes to be used for LFP
+group_name : str, optional
+<span class="ansi-red-fg">File:</span>      /cumulus/edeno/spyglass/src/spyglass/common/common_ripple.py
+<span class="ansi-red-fg">Type:</span>      function
+
+</pre></div></div>
+</div>
+<p>From the function parameters, we can see that we need the <code class="docutils literal notranslate"><span class="pre">nwb_file_name</span></code>, a list of electrodes (<code class="docutils literal notranslate"><span class="pre">electrode_list</span></code>), and to set a <code class="docutils literal notranslate"><span class="pre">group_name</span></code>.</p>
+<section id="How-to-set-the-group__name?">
+<h3>How to set the <code class="docutils literal notranslate"><span class="pre">group__name</span></code>?<a class="headerlink" href="#How-to-set-the-group__name?" title="Permalink to this heading">#</a></h3>
+<p>By default <code class="docutils literal notranslate"><span class="pre">group_name</span></code> is set to CA1 because this is what is commonly used to detect ripples. But if you had a different set of electrodes you wanted to detect on (say on PFC), you could set a different name.</p>
+</section>
+<section id="How-do-we-figure-out-the-electrode_list?">
+<h3>How do we figure out the <code class="docutils literal notranslate"><span class="pre">electrode_list</span></code>?<a class="headerlink" href="#How-do-we-figure-out-the-electrode_list?" title="Permalink to this heading">#</a></h3>
+<p>You should already know which animal and session you want to choose, so the next question is how you set the <code class="docutils literal notranslate"><span class="pre">electrode_list</span></code>. Let’s first define the nwb file we want to look at.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nwb_file_name</span> <span class="o">=</span> <span class="s1">&#39;chimi20200216_new_.nwb&#39;</span>
+</pre></div>
+</div>
+</div>
+<p>Now we can look at <code class="docutils literal notranslate"><span class="pre">electrode_id</span></code> in the <code class="docutils literal notranslate"><span class="pre">Electrode</span></code> table:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spyglass.common</span> <span class="kn">import</span> <span class="n">Electrode</span><span class="p">,</span> <span class="n">BrainRegion</span>
+
+<span class="n">electrodes</span> <span class="o">=</span> <span class="p">((</span><span class="n">Electrode</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">{</span><span class="s1">&#39;nwb_file_name&#39;</span><span class="p">:</span> <span class="n">nwb_file_name</span><span class="p">})</span> <span class="o">*</span> <span class="n">BrainRegion</span><span class="p">)</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;frame&quot;</span><span class="p">)</span>
+<span class="n">electrodes</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>probe_type</th>
+      <th>probe_shank</th>
+      <th>probe_electrode</th>
+      <th>name</th>
+      <th>original_reference_electrode</th>
+      <th>x</th>
+      <th>y</th>
+      <th>z</th>
+      <th>filtering</th>
+      <th>impedance</th>
+      <th>bad_channel</th>
+      <th>x_warped</th>
+      <th>y_warped</th>
+      <th>z_warped</th>
+      <th>contacts</th>
+      <th>region_name</th>
+      <th>subregion_name</th>
+      <th>subsubregion_name</th>
+    </tr>
+    <tr>
+      <th>nwb_file_name</th>
+      <th>electrode_group_name</th>
+      <th>electrode_id</th>
+      <th>region_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="11" valign="top">chimi20200216_new_.nwb</th>
+      <th rowspan="4" valign="top">0</th>
+      <th>0</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>2</td>
+      <td>2</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <th>4</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <th>35</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>3</td>
+      <td>35</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th rowspan="4" valign="top">9</th>
+      <th>36</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>36</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>1</td>
+      <td>37</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>2</td>
+      <td>38</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>3</td>
+      <td>39</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<p>224 rows × 18 columns</p>
+</div></div>
+</div>
+<p>For ripple detection, we want only tetrodes, and only the first good wire on each tetrode. We will assume that is the first wire on each tetrode. I will do this using pandas syntax but you could use datajoint to filter this table as well. Here is the filtered table.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">electrodes</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">electrodes</span><span class="o">.</span><span class="n">region_name</span> <span class="o">==</span> <span class="s1">&#39;Hippocampus&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">electrodes</span><span class="o">.</span><span class="n">probe_electrode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>probe_type</th>
+      <th>probe_shank</th>
+      <th>probe_electrode</th>
+      <th>name</th>
+      <th>original_reference_electrode</th>
+      <th>x</th>
+      <th>y</th>
+      <th>z</th>
+      <th>filtering</th>
+      <th>impedance</th>
+      <th>bad_channel</th>
+      <th>x_warped</th>
+      <th>y_warped</th>
+      <th>z_warped</th>
+      <th>contacts</th>
+      <th>region_name</th>
+      <th>subregion_name</th>
+      <th>subsubregion_name</th>
+    </tr>
+    <tr>
+      <th>nwb_file_name</th>
+      <th>electrode_group_name</th>
+      <th>electrode_id</th>
+      <th>region_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="17" valign="top">chimi20200216_new_.nwb</th>
+      <th>0</th>
+      <th>0</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <th>4</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <th>40</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>40</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <th>44</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>44</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <th>68</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>68</td>
+      <td>81</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <th>72</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>72</td>
+      <td>81</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <th>76</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>76</td>
+      <td>81</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <th>8</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>8</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <th>84</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>84</td>
+      <td>81</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <th>88</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>88</td>
+      <td>81</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <th>92</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>92</td>
+      <td>81</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <th>12</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>12</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <th>20</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>20</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <th>24</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <th>28</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>28</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <th>32</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>32</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <th>36</th>
+      <th>6</th>
+      <td>tetrode_12.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>36</td>
+      <td>16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>0.0</td>
+      <td>False</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td></td>
+      <td>Hippocampus</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>We only want the electrode_id to put in the <code class="docutils literal notranslate"><span class="pre">electrode_list</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">electrode_list</span> <span class="o">=</span> <span class="p">(</span><span class="n">electrodes</span>
+                  <span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">electrodes</span><span class="o">.</span><span class="n">region_name</span> <span class="o">==</span> <span class="s1">&#39;Hippocampus&#39;</span><span class="p">)</span> <span class="o">&amp;</span>
+                       <span class="p">(</span><span class="n">electrodes</span><span class="o">.</span><span class="n">probe_electrode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)]</span>
+                  <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+                  <span class="o">.</span><span class="n">electrode_id</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+<span class="n">electrode_list</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[0, 4, 40, 44, 68, 72, 76, 8, 84, 88, 92, 12, 20, 24, 28, 32, 36]
+</pre></div></div>
+</div>
+<p>Now we can set <code class="docutils literal notranslate"><span class="pre">RippleLFPSelection</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">RippleLFPSelection</span><span class="o">.</span><span class="n">set_lfp_electrodes</span><span class="p">(</span>
+    <span class="n">nwb_file_name</span><span class="p">,</span>
+    <span class="n">electrode_list</span><span class="p">,</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s1">&#39;CA1&#39;</span><span class="p">,)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">RippleLFPSelection</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+    <style type="text/css">
+        .Relation{
+            border-collapse:collapse;
+        }
+        .Relation th{
+            background: #A0A0A0; color: #ffffff; padding:4px; border:#f0e0e0 1px solid;
+            font-weight: normal; font-family: monospace; font-size: 100%;
+        }
+        .Relation td{
+            padding:4px; border:#f0e0e0 1px solid; font-size:100%;
+        }
+        .Relation tr:nth-child(odd){
+            background: #ffffff;
+        }
+        .Relation tr:nth-child(even){
+            background: #f3f1ff;
+        }
+        /* Tooltip container */
+        .djtooltip {
+        }
+        /* Tooltip text */
+        .djtooltip .djtooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 5px 0;
+            border-radius: 6px;
+            /* Position the tooltip text - see examples below! */
+            position: absolute;
+            z-index: 1;
+        }
+        #primary {
+            font-weight: bold;
+            color: black;
+        }
+        #nonprimary {
+            font-weight: normal;
+            color: white;
+        }
+
+        /* Show the tooltip text when you mouse over the tooltip container */
+        .djtooltip:hover .djtooltiptext {
+            visibility: visible;
+        }
+    </style>
+
+    <b></b>
+        <div style="max-height:1000px;max-width:1500px;overflow:auto;">
+        <table border="1" class="Relation">
+            <thead> <tr style="text-align: right;"> <th> <div class="djtooltip">
+                            <p id="primary">nwb_file_name</p>
+                            <span class="djtooltiptext">name of the NWB file</span>
+                        </div></th><th><div class="djtooltip">
+                            <p id="primary">group_name</p>
+                            <span class="djtooltiptext"></span>
+                        </div> </th> </tr> </thead>
+            <tbody> <tr> <td>chimi20200216_new_.nwb</td>
+<td>CA1</td> </tr> </tbody>
+        </table>
+
+        <p>Total: 1</p></div></div>
+</div>
+</section>
+</section>
+<section id="2.-Setting-the-Ripple-Parameters">
+<h2>2. Setting the Ripple Parameters<a class="headerlink" href="#2.-Setting-the-Ripple-Parameters" title="Permalink to this heading">#</a></h2>
+<p>Now that we know which electrodes to use, we can set up the ripple detection parameters:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">RippleParameters</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+    <style type="text/css">
+        .Relation{
+            border-collapse:collapse;
+        }
+        .Relation th{
+            background: #A0A0A0; color: #ffffff; padding:4px; border:#f0e0e0 1px solid;
+            font-weight: normal; font-family: monospace; font-size: 100%;
+        }
+        .Relation td{
+            padding:4px; border:#f0e0e0 1px solid; font-size:100%;
+        }
+        .Relation tr:nth-child(odd){
+            background: #ffffff;
+        }
+        .Relation tr:nth-child(even){
+            background: #f3f1ff;
+        }
+        /* Tooltip container */
+        .djtooltip {
+        }
+        /* Tooltip text */
+        .djtooltip .djtooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 5px 0;
+            border-radius: 6px;
+            /* Position the tooltip text - see examples below! */
+            position: absolute;
+            z-index: 1;
+        }
+        #primary {
+            font-weight: bold;
+            color: black;
+        }
+        #nonprimary {
+            font-weight: normal;
+            color: white;
+        }
+
+        /* Show the tooltip text when you mouse over the tooltip container */
+        .djtooltip:hover .djtooltiptext {
+            visibility: visible;
+        }
+    </style>
+
+    <b></b>
+        <div style="max-height:1000px;max-width:1500px;overflow:auto;">
+        <table border="1" class="Relation">
+            <thead> <tr style="text-align: right;"> <th> <div class="djtooltip">
+                            <p id="primary">ripple_param_name</p>
+                            <span class="djtooltiptext">a name for this set of parameters</span>
+                        </div></th><th><div class="djtooltip">
+                            <p id="nonprimary">ripple_param_dict</p>
+                            <span class="djtooltiptext">dictionary of parameters</span>
+                        </div> </th> </tr> </thead>
+            <tbody> <tr> <td>default</td>
+<td>=BLOB=</td> </tr> </tbody>
+        </table>
+
+        <p>Total: 1</p></div></div>
+</div>
+<p>Let’s look at the default ripple parameters:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">RippleParameters</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">{</span><span class="s1">&#39;ripple_param_name&#39;</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">fetch1</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;ripple_param_name&#39;: &#39;default&#39;,
+ &#39;ripple_param_dict&#39;: {&#39;filter_name&#39;: &#39;Ripple 150-250 Hz&#39;,
+  &#39;speed_name&#39;: &#39;head_speed&#39;,
+  &#39;ripple_detection_algorithm&#39;: &#39;Kay_ripple_detector&#39;,
+  &#39;ripple_detection_params&#39;: {&#39;speed_threshold&#39;: 4.0,
+   &#39;minimum_duration&#39;: 0.015,
+   &#39;zscore_threshold&#39;: 2.0,
+   &#39;smoothing_sigma&#39;: 0.004,
+   &#39;close_ripple_threshold&#39;: 0.0}}}
+</pre></div></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_name</span></code> refers to which bandpass filter is used</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">speed_name</span></code> refers to the name of the speed parameters in <code class="docutils literal notranslate"><span class="pre">IntervalPositionInfo</span></code></p></li>
+<li><p>For the <code class="docutils literal notranslate"><span class="pre">Kay_ripple_detector</span></code> (options are currently Kay and Karlsson, see <code class="docutils literal notranslate"><span class="pre">ripple_detection</span></code> package for specifics) the parameters are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">speed_threshold</span></code>: maxmimum speed the animal can move (in cm/s)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">minimum_duration</span></code>: minimum time above threshold (in seconds)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zscore_threshold</span></code>: mimimum value to be considered a ripple (in standard deviations from mean)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoothing_sigma</span></code>: how much to smooth the signal in time (in seconds)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">close_ripple_threshold</span></code>: exclude ripples closer than this amount (in seconds)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="3.-Make-sure-the-speed-for-this-interval-exists">
+<h2>3. Make sure the speed for this interval exists<a class="headerlink" href="#3.-Make-sure-the-speed-for-this-interval-exists" title="Permalink to this heading">#</a></h2>
+<p>The speed for this interval should exist under the default position parameter set and for a given interval.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">IntervalPositionInfo</span> <span class="o">&amp;</span> <span class="p">{</span><span class="s1">&#39;nwb_file_name&#39;</span><span class="p">:</span> <span class="n">nwb_file_name</span><span class="p">,</span>
+                         <span class="s1">&#39;position_info_param_name&#39;</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;interval_list_name&#39;</span><span class="p">:</span> <span class="s1">&#39;pos 1 valid times&#39;</span><span class="p">,</span>
+                        <span class="p">})</span><span class="o">.</span><span class="n">fetch1_dataframe</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>head_position_x</th>
+      <th>head_position_y</th>
+      <th>head_orientation</th>
+      <th>head_velocity_x</th>
+      <th>head_velocity_y</th>
+      <th>head_speed</th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.581887e+09</th>
+      <td>91.051650</td>
+      <td>211.127050</td>
+      <td>2.999696</td>
+      <td>1.387074</td>
+      <td>2.848838</td>
+      <td>3.168573</td>
+    </tr>
+    <tr>
+      <th>1.581887e+09</th>
+      <td>90.844337</td>
+      <td>211.417287</td>
+      <td>3.078386</td>
+      <td>3.123201</td>
+      <td>3.411111</td>
+      <td>4.624939</td>
+    </tr>
+    <tr>
+      <th>1.581887e+09</th>
+      <td>90.637025</td>
+      <td>211.707525</td>
+      <td>-3.114572</td>
+      <td>5.431643</td>
+      <td>4.089597</td>
+      <td>6.799085</td>
+    </tr>
+    <tr>
+      <th>1.581887e+09</th>
+      <td>90.802875</td>
+      <td>211.596958</td>
+      <td>-3.033109</td>
+      <td>8.097753</td>
+      <td>4.979262</td>
+      <td>9.506138</td>
+    </tr>
+    <tr>
+      <th>1.581887e+09</th>
+      <td>91.288579</td>
+      <td>211.482443</td>
+      <td>-3.062550</td>
+      <td>10.840482</td>
+      <td>6.071373</td>
+      <td>12.424880</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1.581888e+09</th>
+      <td>182.158583</td>
+      <td>201.452467</td>
+      <td>-0.986926</td>
+      <td>0.348276</td>
+      <td>0.218575</td>
+      <td>0.411182</td>
+    </tr>
+    <tr>
+      <th>1.581888e+09</th>
+      <td>182.158583</td>
+      <td>201.397183</td>
+      <td>-0.978610</td>
+      <td>0.279135</td>
+      <td>-0.058413</td>
+      <td>0.285182</td>
+    </tr>
+    <tr>
+      <th>1.581888e+09</th>
+      <td>182.213867</td>
+      <td>201.341900</td>
+      <td>-0.957589</td>
+      <td>0.193798</td>
+      <td>-0.283200</td>
+      <td>0.343162</td>
+    </tr>
+    <tr>
+      <th>1.581888e+09</th>
+      <td>182.158583</td>
+      <td>201.341900</td>
+      <td>-0.970083</td>
+      <td>0.110838</td>
+      <td>-0.417380</td>
+      <td>0.431846</td>
+    </tr>
+    <tr>
+      <th>1.581888e+09</th>
+      <td>182.158583</td>
+      <td>201.286617</td>
+      <td>-0.936414</td>
+      <td>0.045190</td>
+      <td>-0.453966</td>
+      <td>0.456209</td>
+    </tr>
+  </tbody>
+</table>
+<p>39340 rows × 6 columns</p>
+</div></div>
+</div>
+<p>We can see that <code class="docutils literal notranslate"><span class="pre">head_speed</span></code> exists. Remember this must be the same as set in the <code class="docutils literal notranslate"><span class="pre">RippleParameters</span></code>.</p>
+</section>
+<section id="4.-Running-Ripple-Detection-and-Fetching-Ripple-Times">
+<h2>4. Running Ripple Detection and Fetching Ripple Times<a class="headerlink" href="#4.-Running-Ripple-Detection-and-Fetching-Ripple-Times" title="Permalink to this heading">#</a></h2>
+<p>Now we can put everything together.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">key</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;ripple_param_name&#39;</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;nwb_file_name&#39;</span><span class="p">:</span> <span class="n">nwb_file_name</span><span class="p">,</span>
+    <span class="s1">&#39;group_name&#39;</span><span class="p">:</span> <span class="s1">&#39;CA1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;position_info_param_name&#39;</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;interval_list_name&#39;</span><span class="p">:</span> <span class="s1">&#39;pos 1 valid times&#39;</span>
+<span class="p">}</span>
+<span class="n">RippleTimes</span><span class="p">()</span><span class="o">.</span><span class="n">populate</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[2022-11-28 14:50:49,354][WARNING]: Skipped checksum for file with hash: 4bfb6228-ab9c-7765-6fec-3a4a84d0747f, and path: /stelmo/nwb/analysis/chimi20200216_new_QZ5RAQKFBU.nwb
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing ripple times for: {&#39;ripple_param_name&#39;: &#39;default&#39;, &#39;nwb_file_name&#39;: &#39;chimi20200216_new_.nwb&#39;, &#39;group_name&#39;: &#39;CA1&#39;, &#39;position_info_param_name&#39;: &#39;default&#39;, &#39;interval_list_name&#39;: &#39;pos 1 valid times&#39;}
+Writing new NWB file chimi20200216_new_52A55DER85.nwb
+</pre></div></div>
+</div>
+<p>We can get the ripple times by using the method <code class="docutils literal notranslate"><span class="pre">fetch1_dataframe</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ripple_times</span> <span class="o">=</span> <span class="p">(</span><span class="n">RippleTimes</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">fetch1_dataframe</span><span class="p">()</span>
+<span class="n">ripple_times</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>start_time</th>
+      <th>end_time</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.581887e+09</td>
+      <td>1.581887e+09</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.581887e+09</td>
+      <td>1.581887e+09</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.581887e+09</td>
+      <td>1.581887e+09</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.581887e+09</td>
+      <td>1.581887e+09</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.581887e+09</td>
+      <td>1.581887e+09</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>672</th>
+      <td>1.581888e+09</td>
+      <td>1.581888e+09</td>
+    </tr>
+    <tr>
+      <th>673</th>
+      <td>1.581888e+09</td>
+      <td>1.581888e+09</td>
+    </tr>
+    <tr>
+      <th>674</th>
+      <td>1.581888e+09</td>
+      <td>1.581888e+09</td>
+    </tr>
+    <tr>
+      <th>675</th>
+      <td>1.581888e+09</td>
+      <td>1.581888e+09</td>
+    </tr>
+    <tr>
+      <th>676</th>
+      <td>1.581888e+09</td>
+      <td>1.581888e+09</td>
+    </tr>
+  </tbody>
+</table>
+<p>677 rows × 2 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                <a href="../../copyright.html">Copyright</a> &#169; 2020 - Present, Loren Frank
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Ripple Detection</a><ul>
+<li><a class="reference internal" href="#1.-Selecting-Electrodes">1. Selecting Electrodes</a><ul>
+<li><a class="reference internal" href="#How-to-set-the-group__name?">How to set the <code class="docutils literal notranslate"><span class="pre">group__name</span></code>?</a></li>
+<li><a class="reference internal" href="#How-do-we-figure-out-the-electrode_list?">How do we figure out the <code class="docutils literal notranslate"><span class="pre">electrode_list</span></code>?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#2.-Setting-the-Ripple-Parameters">2. Setting the Ripple Parameters</a></li>
+<li><a class="reference internal" href="#3.-Make-sure-the-speed-for-this-interval-exists">3. Make sure the speed for this interval exists</a></li>
+<li><a class="reference internal" href="#4.-Running-Ripple-Detection-and-Fetching-Ripple-Times">4. Running Ripple Detection and Fetching Ripple Times</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/text-adjustments.js"></script>
+    </body>
+</html>

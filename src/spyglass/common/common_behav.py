@@ -72,14 +72,9 @@ class PositionSource(dj.Manual):
 
 @schema
 class RawPosition(dj.Imported):
-    """
-
-    Notes
-    -----
-    The position timestamps come from: .pos_cameraHWSync.dat.
+    """The position timestamps come from: .pos_cameraHWSync.dat.
     If PTP is not used, the position timestamps are inferred by finding the
     closest timestamps from the neural recording via the trodes time.
-
     """
 
     definition = """
@@ -169,13 +164,8 @@ class StateScriptFile(dj.Imported):
 
 @schema
 class VideoFile(dj.Imported):
-    """
-
-    Notes
-    -----
-    The video timestamps come from: videoTimeStamps.cameraHWSync if PTP is used.
-    If PTP is not used, the video timestamps come from videoTimeStamps.cameraHWFrameCount .
-
+    """The video timestamps come from: videoTimeStamps.cameraHWSync if PTP is used.
+    If PTP is not used, the video timestamps come from videoTimeStamps.cameraHWFrameCount.
     """
 
     definition = """

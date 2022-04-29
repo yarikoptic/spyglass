@@ -1,0 +1,49 @@
+# name: Build Documentation
+
+# on:
+#   push:
+#     branches:
+#       - documentation
+
+# jobs:
+#   build-documentation:
+#     runs-on: ubuntu-latest
+#     env:
+#       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+#     steps:
+#     - name: Checkout `documentation` branch
+#       uses: actions/checkout@v3
+#       with:
+#         ref: documentation
+
+#     # - name: Merge master -> documentation
+#     #   uses: devmasx/merge-branch@master
+#     #   with:
+#     #     type: now
+#     #     from_branch: master
+#     #     target_branch: documentation
+#     #     github_token: ${{ github.token }}
+
+#     - name: Install pandoc
+#       uses: r-lib/actions/setup-pandoc@v2
+
+#     - name: Setup Miniconda
+#       uses: conda-incubator/setup-miniconda@v2.1.1
+
+#     - name: Install Python packages
+#       run: pip install -r docs/requirements.txt
+
+#     - name: Install `spyglass`
+#       run: pip install -e .
+
+#     - name: Build documentation
+#       working-directory: docs/
+#       run: make clean && make html
+
+#     - name: Commit results back to `documentation` branch
+#       run: |
+#         git config --local user.name "$GITHUB_ACTOR"
+#         git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+#         git add docs/*
+#         git commit -m 'Build documentation site' || echo "No changes to commit"
+#         git push origin documentation || echo "No changes to commit"

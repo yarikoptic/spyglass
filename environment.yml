@@ -22,6 +22,7 @@ dependencies:
   - ipympl
   - tqdm
   - nb_conda
+  - pandoc
   - pyfftw<=0.12.0  # used by ghostipy. install from conda-forge so that it works on Mac ARM processors
   - pip:
     - pubnub<6.4.0
@@ -37,3 +38,10 @@ dependencies:
     - pyyaml
     - click
     - 'black[jupyter]'
+    - ipython
+    - jupytext
+    - jupyter
+    - matplotlib
+    - numpy
+    - myst_parser
+    - ndx-franklab-novela
