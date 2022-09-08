@@ -17,7 +17,9 @@ schema = dj.schema('common_behav')
 
 @schema
 class RawPosition(dj.Imported):
-    definition = """Position data that comes from an NWB file
+    definition = """
+    # Position data that comes from an NWB file
+    
     -> Session
     ---
     -> IntervalList                        # the valid times for this position data
@@ -54,7 +56,7 @@ class RawPosition(dj.Imported):
             key['raw_position_object_id'] = pdict['raw_position_object_id']
             self.insert1(key)
 
-            MergedPosition.insert(self.fetch('KEY'), skip_duplicates=True)
+            MergedPosition.insert_from_upstream(self.fetch('KEY'), skip_duplicates=True)
 
     def fetch_nwb(self, *attrs, **kwargs):
         return fetch_nwb(self, (Nwbfile, 'nwb_file_abs_path'), *attrs, **kwargs)
@@ -69,7 +71,7 @@ class RawPosition(dj.Imported):
 
 @schema
 class MethodTwoPosition(dj.Manual):
-    definition = """Position data that is entered manually
+    definition = """
     -> Session
     ---
     import_file_name: varchar(2000)  # path to import file
@@ -84,7 +86,7 @@ class MergedPosition(dj.Manual):
     # MergedPosition.insert(self.fetch('KEY'), skip_duplicates=True)
 
     definition = """
-    -> merged_position_id: uuid
+    merged_position_id: uuid
     """
 
     class RawPosition(dj.Part):
@@ -113,7 +115,7 @@ class MergedPosition(dj.Manual):
         return query
 
     @classmethod
-    def insert(cls, rows, **kwargs):
+    def insert_from_upstream(cls, rows, **kwargs):
         """
         :param rows: An iterable where an element is a dictionary.
         """
@@ -135,6 +137,7 @@ class MergedPosition(dj.Manual):
                     if not key:
                         key = (parent & row).fetch1('KEY')
                         master_key = {cls.primary_key[0]: dj.hash.key_hash(key)}
+                        print(master_key)
                         parts_entries[part].append({**master_key, **key})
                         master_entries.append(master_key)
                     else:
@@ -143,10 +146,10 @@ class MergedPosition(dj.Manual):
             if not key:
                 raise ValueError(f'Non-existing entry in any of the parent tables - Entry: {row}')
 
-        with cls.connection.transaction:
-            super().insert(cls(), master_entries, **kwargs)
-            for part, part_entries in parts_entries.items():
-                part.insert(part_entries, **kwargs)
+        # with cls.connection.transaction:
+        cls.insert(cls(), master_entries, **kwargs)
+        for part, part_entries in parts_entries.items():
+            part.insert(part_entries, **kwargs)
 
 
 @schema

@@ -19,34 +19,34 @@ def populate_all_common(nwb_file_name):
     # print('Populate NwbfileKachery...')
     # NwbfileKachery.populate()
 
-    print('Populate ExperimenterList...')
-    ExperimenterList.populate(fp)
+    # print('Populate ExperimenterList...')
+    # ExperimenterList.populate(fp)
 
-    print('Populate ElectrodeGroup...')
-    ElectrodeGroup.populate(fp)
+    # print('Populate ElectrodeGroup...')
+    # ElectrodeGroup.populate(fp)
 
-    print('Populate Electrode...')
-    Electrode.populate(fp)
+    # print('Populate Electrode...')
+    # Electrode.populate(fp)
 
-    print('Populate Raw...')
-    Raw.populate(fp)
+    # print('Populate Raw...')
+    # Raw.populate(fp)
 
-    print('Populate SampleCount...')
-    SampleCount.populate(fp)
+    # print('Populate SampleCount...')
+    # SampleCount.populate(fp)
 
-    print('Populate DIOEvents...')
-    DIOEvents.populate(fp)
+    # print('Populate DIOEvents...')
+    # DIOEvents.populate(fp)
     # sensor data (from analog ProcessingModule) is temporarily removed from NWBFile
     # to reduce file size while it is not being used. add it back in by commenting out
     # the removal code in spyglass/data_import/insert_sessions.py when ready
     # print('Populate SensorData')
     # SensorData.populate(fp)
-    print('Populate TaskEpochs')
-    TaskEpoch.populate(fp)
-    print('Populate StateScriptFile')
-    StateScriptFile.populate(fp)
-    print('Populate VideoFile')
-    VideoFile.populate(fp)
+    # print('Populate TaskEpochs')
+    # TaskEpoch.populate(fp)
+    # print('Populate StateScriptFile')
+    # StateScriptFile.populate(fp)
+    # print('Populate VideoFile')
+    # VideoFile.populate(fp)
     print('RawPosition...')
     RawPosition.populate(fp)
     # print('HeadDir...')

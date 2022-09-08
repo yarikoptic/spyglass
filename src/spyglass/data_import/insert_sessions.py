@@ -54,8 +54,11 @@ def copy_nwb_link_raw_ephys(nwb_file_name, out_nwb_file_name):
 
     out_nwb_file_abs_path = Nwbfile.get_abs_path(out_nwb_file_name)
     if os.path.exists(out_nwb_file_name):
-        warnings.warn(
-            f'Output file {out_nwb_file_abs_path} exists and will be overwritten.')
+        val = input("Output file exists. Do you want to overwrite? (y/N)")
+        if val.lower() not in ['y','yes']:
+            return
+        # warnings.warn(
+        #     f'Output file {out_nwb_file_abs_path} exists and will be overwritten.')
 
     with pynwb.NWBHDF5IO(path=nwb_file_abs_path, mode='r', load_namespaces=True) as input_io:
         nwbf = input_io.read()
