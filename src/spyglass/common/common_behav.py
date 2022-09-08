@@ -1,4 +1,5 @@
 import datajoint as dj
+import itertools
 import ndx_franklab_novela
 import pandas as pd
 import pynwb
@@ -15,59 +16,11 @@ schema = dj.schema('common_behav')
 
 
 @schema
-class PositionSource(dj.Manual):
-    definition = """
-    -> Session
-    -> IntervalList
-    ---
-    source: varchar(200)            # source of data; current options are "trodes" and "dlc" (deep lab cut)
-    import_file_name: varchar(2000)  # path to import file if importing position data
-    """
-
-    @classmethod
-    def insert_from_nwbfile(cls, nwb_file_name):
-        """Given an NWB file name, get the spatial series and interval lists from the file, add the interval
-        lists to the IntervalList table, and populate the RawPosition table if possible.
-
-        Parameters
-        ----------
-        nwb_file_name : str
-            The name of the NWB file.
-        """
-        nwb_file_abspath = Nwbfile.get_abs_path(nwb_file_name)
-        nwbf = get_nwb_file(nwb_file_abspath)
-
-        pos_dict = get_all_spatial_series(nwbf, verbose=True)
-        if pos_dict is not None:
-            for epoch in pos_dict:
-                pdict = pos_dict[epoch]
-                pos_interval_list_name = cls.get_pos_interval_name(epoch)
-
-                # create the interval list and insert it
-                interval_dict = dict()
-                interval_dict['nwb_file_name'] = nwb_file_name
-                interval_dict['interval_list_name'] = pos_interval_list_name
-                interval_dict['valid_times'] = pdict['valid_times']
-                IntervalList().insert1(interval_dict, skip_duplicates=True)
-
-                # add this interval list to the table
-                key = dict()
-                key['nwb_file_name'] = nwb_file_name
-                key['interval_list_name'] = pos_interval_list_name
-                key['source'] = 'trodes'
-                key['import_file_name'] = ''
-                cls.insert1(key)
-
-    @staticmethod
-    def get_pos_interval_name(pos_epoch_num):
-        return f'pos {pos_epoch_num} valid times'
-
-
-@schema
 class RawPosition(dj.Imported):
-    definition = """
-    -> PositionSource
+    definition = """Position data that comes from an NWB file
+    -> Session
     ---
+    -> IntervalList                        # the valid times for this position data
     raw_position_object_id: varchar(40)    # the object id of the spatial series for this epoch in the NWB file
     """
 
@@ -78,12 +31,30 @@ class RawPosition(dj.Imported):
 
         # TODO refactor this. this calculates sampling rate (unused here) and is expensive to do twice
         pos_dict = get_all_spatial_series(nwbf)
+        if pos_dict is None:
+            print(f'Unable to import RawPosition: no SpatialSeries data found in a Position NWB object '
+                  f'in {nwb_file_name}.')
+            return
+
         for epoch in pos_dict:
-            if key['interval_list_name'] == PositionSource.get_pos_interval_name(epoch):
-                pdict = pos_dict[epoch]
-                key['raw_position_object_id'] = pdict['raw_position_object_id']
-                self.insert1(key)
-                break
+            pdict = pos_dict[epoch]
+            pos_interval_list_name = f'pos {epoch} valid times'
+
+            # create the interval list and insert it
+            interval_dict = dict()
+            interval_dict['nwb_file_name'] = nwb_file_name
+            interval_dict['interval_list_name'] = pos_interval_list_name
+            interval_dict['valid_times'] = pdict['valid_times']
+            IntervalList().insert1(interval_dict, skip_duplicates=True)
+
+            # add this interval list to the table
+            key = dict()
+            key['nwb_file_name'] = nwb_file_name
+            key['interval_list_name'] = pos_interval_list_name
+            key['raw_position_object_id'] = pdict['raw_position_object_id']
+            self.insert1(key)
+
+            MergedPosition.insert(self.fetch('KEY'), skip_duplicates=True)
 
     def fetch_nwb(self, *attrs, **kwargs):
         return fetch_nwb(self, (Nwbfile, 'nwb_file_abs_path'), *attrs, **kwargs)
@@ -94,6 +65,88 @@ class RawPosition(dj.Imported):
             data=raw_position_nwb.data,
             index=pd.Index(raw_position_nwb.timestamps, name='time'),
             columns=raw_position_nwb.description.split(', '))
+
+
+@schema
+class MethodTwoPosition(dj.Manual):
+    definition = """Position data that is entered manually
+    -> Session
+    ---
+    import_file_name: varchar(2000)  # path to import file
+    """
+
+
+@schema
+class MergedPosition(dj.Manual):
+    # adapted from https://github.com/ttngu207/db-programming-with-datajoint/blob/master/notebooks/pipelines_merging_design_master_part.ipynb
+    # this table should be populated by the upstream position tables so that every entity in those tables
+    # is referenced from an entity in a part table here. the upsteam position tables should use in make():
+    # MergedPosition.insert(self.fetch('KEY'), skip_duplicates=True)
+
+    definition = """
+    -> merged_position_id: uuid
+    """
+
+    class RawPosition(dj.Part):
+        definition = """
+        -> master
+        ---
+        -> RawPosition
+        """
+
+    class MethodTwoPosition(dj.Part):
+        definition = """
+        -> master
+        ---
+        -> MethodTwoPosition
+        """
+
+    @property
+    def all_joined(self):
+        parts = self.parts(as_objects=True)
+        primary_attrs = list(dict.fromkeys(itertools.chain.from_iterable([p.heading.names for p in parts])))
+
+        query = dj.U(*primary_attrs) * parts[0].proj(..., **{a: 'NULL' for a in primary_attrs if a not in parts[0].heading.names})
+        for part in parts[1:]:
+            query += dj.U(*primary_attrs) * part.proj(..., **{a: 'NULL' for a in primary_attrs if a not in part.heading.names})
+
+        return query
+
+    @classmethod
+    def insert(cls, rows, **kwargs):
+        """
+        :param rows: An iterable where an element is a dictionary.
+        """
+
+        try:
+            for r in iter(rows):
+                assert isinstance(r, dict), 'Input "rows" must be a list of dictionaries'
+        except TypeError:
+            raise TypeError('Input "rows" must be a list of dictionaries')
+
+        parts = cls.parts(as_objects=True)
+        master_entries = []
+        parts_entries = {p: [] for p in parts}
+        for row in rows:
+            key = {}
+            for part in parts:
+                parent = part.parents(as_objects=True)[-1]
+                if parent & row:
+                    if not key:
+                        key = (parent & row).fetch1('KEY')
+                        master_key = {cls.primary_key[0]: dj.hash.key_hash(key)}
+                        parts_entries[part].append({**master_key, **key})
+                        master_entries.append(master_key)
+                    else:
+                        raise ValueError(f'Mutual Exclusivity Error! Entry exists in more than one parent table - Entry: {row}')
+
+            if not key:
+                raise ValueError(f'Non-existing entry in any of the parent tables - Entry: {row}')
+
+        with cls.connection.transaction:
+            super().insert(cls(), master_entries, **kwargs)
+            for part, part_entries in parts_entries.items():
+                part.insert(part_entries, **kwargs)
 
 
 @schema

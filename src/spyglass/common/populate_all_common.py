@@ -1,6 +1,5 @@
 # HeadDir, Speed, LinPos,
-from .common_behav import (PositionSource, RawPosition, StateScriptFile,
-                           VideoFile)
+from .common_behav import RawPosition, StateScriptFile, VideoFile
 from .common_dio import DIOEvents
 # from .common_nwbfile import NwbfileKachery
 from .common_ephys import Electrode, ElectrodeGroup, Raw, SampleCount
@@ -15,26 +14,26 @@ def populate_all_common(nwb_file_name):
     fp = [(Nwbfile & {'nwb_file_name': nwb_file_name}).proj()]
     print('Populate Session...')
     Session.populate(fp)
-    
+
     # If we use Kachery for data sharing we can uncomment the following two lines. TBD
     # print('Populate NwbfileKachery...')
     # NwbfileKachery.populate()
-    
+
     print('Populate ExperimenterList...')
     ExperimenterList.populate(fp)
-    
+
     print('Populate ElectrodeGroup...')
     ElectrodeGroup.populate(fp)
-    
+
     print('Populate Electrode...')
     Electrode.populate(fp)
-    
+
     print('Populate Raw...')
     Raw.populate(fp)
-    
+
     print('Populate SampleCount...')
     SampleCount.populate(fp)
-    
+
     print('Populate DIOEvents...')
     DIOEvents.populate(fp)
     # sensor data (from analog ProcessingModule) is temporarily removed from NWBFile
@@ -49,7 +48,6 @@ def populate_all_common(nwb_file_name):
     print('Populate VideoFile')
     VideoFile.populate(fp)
     print('RawPosition...')
-    PositionSource.insert_from_nwbfile(nwb_file_name)
     RawPosition.populate(fp)
     # print('HeadDir...')
     # HeadDir().populate()
