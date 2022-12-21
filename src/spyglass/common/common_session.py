@@ -6,6 +6,7 @@ from .common_lab import Institution, Lab, LabMember
 from .common_nwbfile import Nwbfile
 from .common_subject import Subject
 from .nwb_helper_fn import get_nwb_file
+from ..utils import ProvMixin
 
 schema = dj.schema("common_session")
 
@@ -13,20 +14,23 @@ schema = dj.schema("common_session")
 
 
 @schema
-class Session(dj.Imported):
-    definition = """
-    # Table for holding experimental sessions.
-    -> Nwbfile
-    ---
-    -> [nullable] Subject
-    -> [nullable] Institution
-    -> [nullable] Lab
-    session_id = NULL: varchar(200)
-    session_description: varchar(2000)
-    session_start_time: datetime
-    timestamps_reference_time: datetime
-    experiment_description = NULL: varchar(2000)
-    """
+class Session(ProvMixin, dj.Imported):
+    definition = (
+        """
+        # Table for holding experimental sessions.
+        -> Nwbfile
+        ---
+        -> [nullable] Subject
+        -> [nullable] Institution
+        -> [nullable] Lab
+        session_id = NULL: varchar(200)
+        session_description: varchar(2000)
+        session_start_time: datetime
+        timestamps_reference_time: datetime
+        experiment_description = NULL: varchar(2000)
+        """
+        + ProvMixin.added_definition
+    )
 
     def make(self, key):
         # These imports must go here to avoid cyclic dependencies
