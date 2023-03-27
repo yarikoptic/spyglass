@@ -7,12 +7,13 @@ from ripple_detection.core import gaussian_smooth, get_envelope
 from spyglass.common import (
     Electrode,
     IntervalList,  # noqa
-    IntervalPositionInfo,
-    IntervalPositionInfoSelection,
     LFPBand,
     LFPBandSelection,
     Session,
 )
+from .common_interval import interval_list_intersect
+from .nwb_helper_fn import get_electrode_indices
+from ..position_v1 import FinalPosition
 from spyglass.common.common_nwbfile import AnalysisNwbfile
 from spyglass.common.dj_helper_fn import fetch_nwb
 
@@ -35,9 +36,86 @@ def interpolate_to_new_time(df, new_time, upsampling_interpolation_method="linea
 
 
 @schema
+class RippleArtifactDetectionParameters(dj.Manual):
+    definition = """
+    # Parameters for detecting artifact times within a sort group.
+    artifact_params_name: varchar(200)
+    ---
+    artifact_params: blob  # dictionary of parameters
+    """
+
+    def insert_default(self):
+        """Insert the default artifact parameters with an appropriate parameter dict."""
+        artifact_params = {}
+        artifact_params["zscore_thresh"] = None  # must be None or >= 0
+        artifact_params["amplitude_thresh"] = 3000  # must be None or >= 0
+        # all electrodes of sort group
+        artifact_params["proportion_above_thresh"] = 1.0
+        artifact_params["removal_window_ms"] = 1.0  # in milliseconds
+        self.insert1(["default", artifact_params], skip_duplicates=True)
+
+        artifact_params_none = {}
+        artifact_params_none["zscore_thresh"] = None
+        artifact_params_none["amplitude_thresh"] = None
+        self.insert1(["none", artifact_params_none], skip_duplicates=True)
+
+
+@schema
+class RippleArtifactDetectionSelection(dj.Manual):
+    definition = """
+    # Specifies artifact detection parameters to apply to a sort group's recording.
+    -> LFPBand
+    -> RippleArtifactDetectionParameters
+    ---
+    custom_artifact_detection=0 : tinyint
+    """
+
+
+@schema
+class RippleArtifactRemovedIntervalList(dj.Manual):
+    definition = """
+    # Stores intervals without detected artifacts.
+    # Note that entries can come from alternative artifact removal analyses.
+    artifact_removed_interval_list_name: varchar(200)
+    ---
+    artifact_removed_valid_times: longblob
+    artifact_times: longblob # np array of artifact intervals
+    """
+
+
+@schema
+class RippleParameters(dj.Lookup):
+    definition = """
+    ripple_param_name : varchar(80) # a name for this set of parameters
+    ----
+    ripple_param_dict : BLOB    # dictionary of parameters
+    """
+
+    def insert_default(self):
+        """Insert the default parameter set"""
+        default_dict = {
+            "speed_name": "speed",
+            "ripple_detection_algorithm": "Kay_ripple_detector",
+            "ripple_detection_params": dict(
+                speed_threshold=4.0,  # cm/s
+                minimum_duration=0.015,  # sec
+                zscore_threshold=2.0,  # std
+                smoothing_sigma=0.004,  # sec
+                close_ripple_threshold=0.0,  # sec
+            ),
+            "remove_artifacts": True,
+        }
+        self.insert1(
+            {"ripple_param_name": "default", "ripple_param_dict": default_dict},
+            skip_duplicates=True,
+        )
+
+
+@schema
 class RippleLFPSelection(dj.Manual):
     definition = """
      -> LFPBand
+     -> RippleArtifactRemovedIntervalList
      group_name = 'CA1' : varchar(80)
      """
 
@@ -93,6 +171,9 @@ class RippleLFPSelection(dj.Manual):
             .loc[:, LFPBandSelection.LFPBandElectrode.primary_key]
         )
         electrode_keys["group_name"] = group_name
+        electrode_keys["artifact_removed_interval_list_name"] = key[
+            "artifact_removed_interval_list_name"
+        ]
         electrode_keys = electrode_keys.sort_values(by=["electrode_id"])
         RippleLFPSelection().RippleLFPElectrode.insert(
             electrode_keys.to_dict(orient="records"),
@@ -102,38 +183,11 @@ class RippleLFPSelection(dj.Manual):
 
 
 @schema
-class RippleParameters(dj.Lookup):
-    definition = """
-    ripple_param_name : varchar(80) # a name for this set of parameters
-    ----
-    ripple_param_dict : BLOB    # dictionary of parameters
-    """
-
-    def insert_default(self):
-        """Insert the default parameter set"""
-        default_dict = {
-            "speed_name": "head_speed",
-            "ripple_detection_algorithm": "Kay_ripple_detector",
-            "ripple_detection_params": dict(
-                speed_threshold=4.0,  # cm/s
-                minimum_duration=0.015,  # sec
-                zscore_threshold=2.0,  # std
-                smoothing_sigma=0.004,  # sec
-                close_ripple_threshold=0.0,  # sec
-            ),
-        }
-        self.insert1(
-            {"ripple_param_name": "default", "ripple_param_dict": default_dict},
-            skip_duplicates=True,
-        )
-
-
-@schema
 class RippleTimes(dj.Computed):
     definition = """
     -> RippleParameters
     -> RippleLFPSelection
-    -> IntervalPositionInfo
+    -> FinalPosition
     ---
     -> AnalysisNwbfile
     ripple_times_object_id : varchar(40)
@@ -147,7 +201,6 @@ class RippleTimes(dj.Computed):
 
         ripple_detection_algorithm = ripple_params["ripple_detection_algorithm"]
         ripple_detection_params = ripple_params["ripple_detection_params"]
-
         (
             speed,
             interval_ripple_lfps,
@@ -192,14 +245,13 @@ class RippleTimes(dj.Computed):
     def get_ripple_lfps_and_position_info(key):
         nwb_file_name = key["nwb_file_name"]
         interval_list_name = key["target_interval_list_name"]
-        position_info_param_name = key["position_info_param_name"]
         ripple_params = (
             RippleParameters & {"ripple_param_name": key["ripple_param_name"]}
         ).fetch1("ripple_param_dict")
-
+        remove_artifact = ripple_params["remove_artifacts"]
         speed_name = ripple_params["speed_name"]
 
-        electrode_keys = (RippleLFPSelection.RippleLFPElectrode() & key).fetch(
+        electrode_ids = (RippleLFPSelection.RippleLFPElectrode() & key).fetch(
             "electrode_id"
         )
 
@@ -208,53 +260,67 @@ class RippleTimes(dj.Computed):
         del lfp_key["interval_list_name"]
         ripple_lfp_nwb = (LFPBand & lfp_key).fetch_nwb()[0]
         ripple_lfp_electrodes = ripple_lfp_nwb["filtered_data"].electrodes.data[:]
+        valid_elecs = [elec for elec in electrode_ids if elec in ripple_lfp_electrodes]
+        lfp_indexed_elec_ids = get_electrode_indices(
+            ripple_lfp_nwb["filtered_data"], valid_elecs
+        )
         elec_mask = np.full_like(ripple_lfp_electrodes, 0, dtype=bool)
-        elec_mask[
-            [
-                ind
-                for ind, elec in enumerate(ripple_lfp_electrodes)
-                if elec in electrode_keys
-            ]
-        ] = True
+        elec_mask[lfp_indexed_elec_ids] = True
         ripple_lfp = pd.DataFrame(
             ripple_lfp_nwb["filtered_data"].data,
             index=pd.Index(ripple_lfp_nwb["filtered_data"].timestamps, name="time"),
         )
+
         sampling_frequency = ripple_lfp_nwb["lfp_band_sampling_rate"]
 
         ripple_lfp = ripple_lfp.loc[:, elec_mask]
-
         position_valid_times = (
             IntervalList
             & {"nwb_file_name": nwb_file_name, "interval_list_name": interval_list_name}
         ).fetch1("valid_times")
 
-        position_info = (
-            IntervalPositionInfo()
-            & {
-                "nwb_file_name": nwb_file_name,
-                "interval_list_name": interval_list_name,
-                "position_info_param_name": position_info_param_name,
-            }
-        ).fetch1_dataframe()
+        if remove_artifact:
+            artifact_removed_valid_times = (
+                RippleArtifactRemovedIntervalList
+                & {
+                    "artifact_removed_interval_list_name": key[
+                        "artifact_removed_interval_list_name"
+                    ]
+                }
+            ).fetch1("artifact_removed_valid_times")
+            valid_times = interval_list_intersect(
+                position_valid_times, artifact_removed_valid_times
+            )
+        else:
+            valid_times = position_valid_times
 
+        # if len(artifact_times):
+        #     if artifact_times.ndim == 1:
+        #         artifact_times = np.expand_dims(artifact_times, 0)
+
+        valid_table_fields = list(FinalPosition.fetch().dtype.fields.keys())
+        pos_key = {k: val for k, val in key.items() if k in valid_table_fields}
+
+        position_info = (FinalPosition() & pos_key).fetch1_dataframe()
+        # changed axis from 1 to 0 for row concat instead of column
         position_info = pd.concat(
             [
                 position_info.loc[slice(valid_time[0], valid_time[1])]
-                for valid_time in position_valid_times
+                for valid_time in valid_times
             ],
-            axis=1,
+            axis=0,
         )
+        # changed axis from 1 to 0 for row concat instead of column
         interval_ripple_lfps = pd.concat(
             [
                 ripple_lfp.loc[slice(valid_time[0], valid_time[1])]
-                for valid_time in position_valid_times
+                for valid_time in valid_times
             ],
-            axis=1,
+            axis=0,
         )
 
         position_info = interpolate_to_new_time(
-            valid_position_info, interval_ripple_lfps.index
+            position_info, interval_ripple_lfps.index
         )
 
         return (
