@@ -15,7 +15,7 @@ from .common_interval import interval_list_intersect
 from .nwb_helper_fn import get_electrode_indices
 from ..position_v1 import FinalPosition
 from spyglass.common.common_nwbfile import AnalysisNwbfile
-from spyglass.common.dj_helper_fn import fetch_nwb
+from spyglass.utils.dj_helper_fn import fetch_nwb
 
 schema = dj.schema("common_ripple")
 
@@ -320,7 +320,7 @@ class RippleTimes(dj.Computed):
         )
 
         position_info = interpolate_to_new_time(
-            position_info, interval_ripple_lfps.index
+            valid_position_info, interval_ripple_lfps.index
         )
 
         return (
