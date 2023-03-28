@@ -26,14 +26,9 @@ from replay_trajectory_classification.classifier import (
     _DEFAULT_CONTINUOUS_TRANSITIONS,
     _DEFAULT_ENVIRONMENT,
 )
-from replay_trajectory_classification.continuous_state_transitions import (
-    RandomWalk,
-    Uniform,
-)
 from replay_trajectory_classification.discrete_state_transitions import DiagonalDiscrete
-from replay_trajectory_classification.environments import Environment
 from replay_trajectory_classification.initial_conditions import UniformInitialConditions
-from replay_trajectory_classification.observation_model import ObservationModel
+
 from ripple_detection import (
     get_multiunit_population_firing_rate,
     multiunit_HSE_detector,
@@ -740,28 +735,6 @@ def get_data_for_multiple_epochs(
     assert position_info.shape[0] == marks.shape[0]
 
     return position_info, marks, valid_slices, environment_labels
-
-
-def create_model_for_multiple_epochs(epoch_names: list, env_kwargs: dict):
-    observation_models = []
-    environments = []
-    continuous_transition_types = []
-
-    for epoch in epoch_names:
-        observation_models.append(ObservationModel(epoch))
-        environments.append(Environment(epoch, **env_kwargs))
-
-    for epoch1 in epoch_names:
-        continuous_transition_types.append([])
-        for epoch2 in epoch_names:
-            if epoch1 == epoch2:
-                continuous_transition_types[-1].append(
-                    RandomWalk(epoch1, use_diffusion=True)
-                )
-            else:
-                continuous_transition_types[-1].append(Uniform(epoch1, epoch2))
-
-    return observation_models, environments, continuous_transition_types
 
 
 def populate_mark_indicators(
