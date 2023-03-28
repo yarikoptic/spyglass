@@ -252,7 +252,7 @@ def get_spike_indicator(key, time_range, sampling_rate=500):
     time = np.linspace(start_time, end_time, n_samples)
 
     spike_indicator = dict()
-    spikes_nwb_table = (CuratedSpikeSorting() & key)
+    spikes_nwb_table = CuratedSpikeSorting() & key
 
     for n_trode in spikes_nwb_table.fetch_nwb():
         try:
@@ -271,6 +271,7 @@ def get_spike_indicator(key, time_range, sampling_rate=500):
         spike_indicator,
         index=pd.Index(time, name="time"),
     )
+
 
 def get_decoding_data_for_epoch(
     nwb_file_name: str,
@@ -297,7 +298,9 @@ def get_decoding_data_for_epoch(
         "nwb_file_name": nwb_file_name,
         **additional_spike_keys,
     }
-    spikes = get_spike_indicator(curated_spikes_key, (valid_times.min(), valid_times.max()), sampling_rate=500)
+    spikes = get_spike_indicator(
+        curated_spikes_key, (valid_times.min(), valid_times.max()), sampling_rate=500
+    )
     spikes = pd.concat([spikes.loc[times] for times in valid_slices])
 
     # position
