@@ -51,7 +51,7 @@ def get_epoch_interval_names(nwb_file_name):
 
     interval_list = interval_list.loc[
         interval_list.interval_list_name.str.contains(
-            r"^(\d+)_(\w+)$", regex=True, na=False
+            r"^(?:\d+)_(?:\w+)$", regex=True, na=False
         )
     ]
 
