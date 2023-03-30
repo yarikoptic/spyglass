@@ -69,8 +69,8 @@ class DataAcquisitionDevice(dj.Manual):
 
             new_device_dict["data_acquisition_device_name"] = name
             new_device_dict["data_acquisition_device_system"] = system
-            new_device_dict["data_acquisition_device_amplifier"] = amplifier
-            new_device_dict["adc_circuit"] = adc_circuit
+            new_device_dict["data_acquisition_device_amplifier"] = amplifier.title()
+            new_device_dict["adc_circuit"] = adc_circuit.title()
 
             cls._add_device(new_device_dict)
 
@@ -471,7 +471,7 @@ class Probe(dj.Manual):
         elect_dict: dict,
     ):
         # construct dictionary of values to add to ProbeType
-        new_probe_type_dict["manufacturer"] = getattr(nwb_probe_obj, "manufacturer")
+        new_probe_type_dict["manufacturer"] = getattr(nwb_probe_obj, "manufacturer", "")
         new_probe_type_dict["probe_type"] = nwb_probe_obj.probe_type
         new_probe_type_dict["probe_description"] = nwb_probe_obj.probe_description
         new_probe_type_dict["num_shanks"] = len(nwb_probe_obj.shanks)
