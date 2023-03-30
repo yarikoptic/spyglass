@@ -246,7 +246,6 @@ class SortedSpikesClassifierParameters(dj.Manual):
 
 
 def get_spike_indicator(key, time_range, sampling_rate=500):
-
     start_time, end_time = time_range
     n_samples = int(np.ceil((end_time - start_time) * sampling_rate)) + 1
     time = np.linspace(start_time, end_time, n_samples)
@@ -331,7 +330,6 @@ def get_data_for_multiple_epochs(
     position_info_param_name="decoding",
     additional_spike_keys={},
 ):
-
     data = []
     environment_labels = []
 

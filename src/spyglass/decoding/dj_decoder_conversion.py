@@ -59,8 +59,7 @@ def _convert_env_dict(env_params: dict) -> Environment:
 
 
 def _to_dict(transition: object) -> dict:
-    """Helper function to convert a transition class into a dictionary
-    """
+    """Helper function to convert a transition class into a dictionary"""
     parameters = vars(transition)
     parameters["class_name"] = type(transition).__name__
 
@@ -68,15 +67,14 @@ def _to_dict(transition: object) -> dict:
 
 
 def _convert_transitions_to_dict(transitions: list[list[object]]) -> list[list[dict]]:
-    """Converts a list of lists of transition classes into a list of lists of dictionaries
-    """
+    """Converts a list of lists of transition classes into a list of lists of dictionaries"""
     return [
         [_to_dict(transition) for transition in transition_rows]
         for transition_rows in transitions
     ]
 
 
-def restore_classes(params: dict)-> dict:
+def restore_classes(params: dict) -> dict:
     """Converts a dictionary of parameters into a dictionary of classes since datajoint cannot handle classes"""
     continuous_state_transition_types = {
         "RandomWalk": RandomWalk,
@@ -147,8 +145,7 @@ def _convert_environment_to_dict(env: Environment) -> dict:
 
 
 def convert_classes_to_dict(key: dict) -> dict:
-    """Converts the classifier parameters into a dictionary so that datajoint can store it.
-    """
+    """Converts the classifier parameters into a dictionary so that datajoint can store it."""
     try:
         key["classifier_params"]["environments"] = [
             _convert_environment_to_dict(env)
