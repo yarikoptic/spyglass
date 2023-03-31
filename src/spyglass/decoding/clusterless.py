@@ -664,9 +664,26 @@ class MultiunitHighSynchronyEvents(dj.Computed):
 def get_decoding_data_for_epoch(
     nwb_file_name: str,
     interval_list_name: str,
-    position_info_param_name="default_decoding",
-    additional_mark_keys={},
-):
+    position_info_param_name: str="default_decoding",
+    additional_mark_keys: dict={},
+) -> tuple[pd.DataFrame, xr.DataArray, list[slice]]:
+    """Collects necessary data for decoding.
+
+    Parameters
+    ----------
+    nwb_file_name : str
+    interval_list_name : str
+    position_info_param_name : str, optional
+    additional_mark_keys : dict, optional
+
+    Returns
+    -------
+    position_info : pd.DataFrame, shape (n_time, n_columns)
+    marks : xr.DataArray, shape (n_time, n_marks, n_electrodes)
+    valid_slices : list[slice]
+
+    """
+
     valid_ephys_position_times_by_epoch = get_valid_ephys_position_times_by_epoch(
         nwb_file_name
     )
@@ -705,10 +722,27 @@ def get_decoding_data_for_epoch(
 
 def get_data_for_multiple_epochs(
     nwb_file_name: str,
-    epoch_names: list,
+    epoch_names: list[str],
     position_info_param_name="default_decoding",
-    additional_mark_keys={},
-):
+    additional_mark_keys: dict={},
+) -> tuple[pd.DataFrame, xr.DataArray, dict[str, list[slice]], np.ndarray]:
+    """Collects necessary data for decoding multiple environments
+
+    Parameters
+    ----------
+    nwb_file_name : str
+    epoch_names : list[str]
+    position_info_param_name : str, optional
+    additional_mark_keys : dict, optional
+
+    Returns
+    -------
+    position_info : pd.DataFrame, shape (n_time, n_columns)
+    marks : xr.DataArray, shape (n_time, n_marks, n_electrodes)
+    valid_slices : dict[str, list[slice]]
+    environment_labels : np.ndarray, shape (n_time,)
+
+    """
     data = []
     environment_labels = []
 
@@ -738,10 +772,26 @@ def get_data_for_multiple_epochs(
 
 
 def populate_mark_indicators(
-    spikesorting_selection_keys: list,
-    mark_param_name="default",
-    position_info_param_name="default_decoding",
+    spikesorting_selection_keys: dict,
+    mark_param_name : str="default",
+    position_info_param_name : str="default_decoding",
 ):
+    """Populate mark indicators for all units in the given spike sorting selection.
+
+    This function is a way to do several pipeline steps at once. It will:
+      1. Populate the SpikeSortingSelection table
+      2. Populate the SpikeSorting table
+      3. Populate the Curation table
+      4. Populate the CuratedSpikeSortingSelection table
+      5. Populate UnitMarks
+      6. Compute UnitMarksIndicator for each position epoch
+
+    Parameters
+    ----------
+    spikesorting_selection_keys : dict
+    mark_param_name : str, optional
+    position_info_param_name : str, optional
+    """
     spikesorting_selection_keys = deepcopy(spikesorting_selection_keys)
     # Populate spike sorting
     SpikeSortingSelection().insert(

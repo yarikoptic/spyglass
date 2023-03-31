@@ -245,7 +245,21 @@ class SortedSpikesClassifierParameters(dj.Manual):
         return restore_classes(super().fetch1(*args, **kwargs))
 
 
-def get_spike_indicator(key, time_range, sampling_rate=500):
+def get_spike_indicator(key : dict, time_range : tuple[float, float], sampling_rate : float=500.0) -> pd.DataFrame:
+    """For a given key, returns a dataframe with the spike indicator for each unit
+
+    Parameters
+    ----------
+    key : dict
+    time_range : tuple[float, float]
+        Start and end time of the spike indicator
+    sampling_rate : float, optional
+
+    Returns
+    -------
+    spike_indicator : pd.DataFrame, shape (n_time, n_units)
+        A dataframe with the spike indicator for each unit
+    """
     start_time, end_time = time_range
     n_samples = int(np.ceil((end_time - start_time) * sampling_rate)) + 1
     time = np.linspace(start_time, end_time, n_samples)
@@ -275,9 +289,25 @@ def get_spike_indicator(key, time_range, sampling_rate=500):
 def get_decoding_data_for_epoch(
     nwb_file_name: str,
     interval_list_name: str,
-    position_info_param_name="default",
-    additional_spike_keys={},
-):
+    position_info_param_name : str="default",
+    additional_spike_keys : dict={},
+) -> tuple[pd.DataFrame, pd.DataFrame, list[slice]]:
+    """Collects the data needed for decoding
+
+    Parameters
+    ----------
+    nwb_file_name : str
+    interval_list_name : str
+    position_info_param_name : str, optional
+    additional_spike_keys : dict, optional
+
+    Returns
+    -------
+    position_info : pd.DataFrame, shape (n_time, n_position_features)
+    spikes : pd.DataFrame, shape (n_time, n_units)
+    valid_slices : list[slice]
+
+    """
     # valid slices
     valid_ephys_position_times_by_epoch = get_valid_ephys_position_times_by_epoch(
         nwb_file_name
@@ -327,9 +357,28 @@ def get_decoding_data_for_epoch(
 def get_data_for_multiple_epochs(
     nwb_file_name: str,
     epoch_names: list,
-    position_info_param_name="decoding",
-    additional_spike_keys={},
-):
+    position_info_param_name: str="decoding",
+    additional_spike_keys : dict={},
+) -> tuple[pd.DataFrame, pd.DataFrame, list[slice], np.ndarray, np.ndarray]:
+    """Collects the data needed for decoding for multiple epochs
+
+    Parameters
+    ----------
+    nwb_file_name : str
+    epoch_names : list
+    position_info_param_name : str, optional
+    additional_spike_keys : dict, optional
+
+    Returns
+    -------
+    position_info : pd.DataFrame, shape (n_time, n_position_features)
+    spikes : pd.DataFrame, shape (n_time, n_units)
+    valid_slices : list[slice]
+    environment_labels : np.ndarray, shape (n_time,)
+        The environment label for each time point
+    sort_group_ids : np.ndarray, shape (n_units,)
+        The sort group of each unit
+    """
     data = []
     environment_labels = []
 
