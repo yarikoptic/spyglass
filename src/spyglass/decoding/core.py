@@ -10,7 +10,9 @@ from replay_trajectory_classification.continuous_state_transitions import (
 from replay_trajectory_classification.environments import Environment
 
 
-def get_valid_ephys_position_times_from_interval(interval_list_name: str, nwb_file_name: str) -> np.ndarray:
+def get_valid_ephys_position_times_from_interval(
+    interval_list_name: str, nwb_file_name: str
+) -> np.ndarray:
     """Finds the intersection of the valid times for the interval list, the valid times for the ephys data,
     and the valid times for the position data.
 
@@ -82,7 +84,9 @@ def get_epoch_interval_names(nwb_file_name: str) -> list[str]:
     return interval_list.interval_list_name.tolist()
 
 
-def get_valid_ephys_position_times_by_epoch(nwb_file_name: str) -> dict[str, np.ndarray]:
+def get_valid_ephys_position_times_by_epoch(
+    nwb_file_name: str,
+) -> dict[str, np.ndarray]:
     """Get the valid ephys position times for each epoch.
 
     Parameters
@@ -101,7 +105,9 @@ def get_valid_ephys_position_times_by_epoch(nwb_file_name: str) -> dict[str, np.
     }
 
 
-def convert_epoch_interval_name_to_position_interval_name(epoch_interval_name: str) -> str:
+def convert_epoch_interval_name_to_position_interval_name(
+    epoch_interval_name: str,
+) -> str:
     """Converts the epoch interval name to the position interval name.
 
     Parameters
@@ -133,7 +139,9 @@ def convert_valid_times_to_slice(valid_times: np.ndarray) -> list[slice]:
     return [slice(times[0], times[1]) for times in valid_times]
 
 
-def create_model_for_multiple_epochs(epoch_names: list[str], env_kwargs: dict) -> tuple[list[ObservationModel], list[Environment], list[list[object]]]:
+def create_model_for_multiple_epochs(
+    epoch_names: list[str], env_kwargs: dict
+) -> tuple[list[ObservationModel], list[Environment], list[list[object]]]:
     """Creates the observation model, environment, and continuous transition types for multiple epochs for decoding
 
     Parameters
