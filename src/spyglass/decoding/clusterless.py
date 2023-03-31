@@ -664,8 +664,8 @@ class MultiunitHighSynchronyEvents(dj.Computed):
 def get_decoding_data_for_epoch(
     nwb_file_name: str,
     interval_list_name: str,
-    position_info_param_name: str="default_decoding",
-    additional_mark_keys: dict={},
+    position_info_param_name: str = "default_decoding",
+    additional_mark_keys: dict = {},
 ) -> tuple[pd.DataFrame, xr.DataArray, list[slice]]:
     """Collects necessary data for decoding.
 
@@ -724,7 +724,7 @@ def get_data_for_multiple_epochs(
     nwb_file_name: str,
     epoch_names: list[str],
     position_info_param_name="default_decoding",
-    additional_mark_keys: dict={},
+    additional_mark_keys: dict = {},
 ) -> tuple[pd.DataFrame, xr.DataArray, dict[str, list[slice]], np.ndarray]:
     """Collects necessary data for decoding multiple environments
 
@@ -773,8 +773,8 @@ def get_data_for_multiple_epochs(
 
 def populate_mark_indicators(
     spikesorting_selection_keys: dict,
-    mark_param_name : str="default",
-    position_info_param_name : str="default_decoding",
+    mark_param_name: str = "default",
+    position_info_param_name: str = "default_decoding",
 ):
     """Populate mark indicators for all units in the given spike sorting selection.
 
