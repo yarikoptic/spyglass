@@ -245,7 +245,9 @@ class SortedSpikesClassifierParameters(dj.Manual):
         return restore_classes(super().fetch1(*args, **kwargs))
 
 
-def get_spike_indicator(key : dict, time_range : tuple[float, float], sampling_rate : float=500.0) -> pd.DataFrame:
+def get_spike_indicator(
+    key: dict, time_range: tuple[float, float], sampling_rate: float = 500.0
+) -> pd.DataFrame:
     """For a given key, returns a dataframe with the spike indicator for each unit
 
     Parameters
@@ -289,8 +291,8 @@ def get_spike_indicator(key : dict, time_range : tuple[float, float], sampling_r
 def get_decoding_data_for_epoch(
     nwb_file_name: str,
     interval_list_name: str,
-    position_info_param_name : str="default",
-    additional_spike_keys : dict={},
+    position_info_param_name: str = "default",
+    additional_spike_keys: dict = {},
 ) -> tuple[pd.DataFrame, pd.DataFrame, list[slice]]:
     """Collects the data needed for decoding
 
@@ -357,8 +359,8 @@ def get_decoding_data_for_epoch(
 def get_data_for_multiple_epochs(
     nwb_file_name: str,
     epoch_names: list,
-    position_info_param_name: str="decoding",
-    additional_spike_keys : dict={},
+    position_info_param_name: str = "decoding",
+    additional_spike_keys: dict = {},
 ) -> tuple[pd.DataFrame, pd.DataFrame, list[slice], np.ndarray, np.ndarray]:
     """Collects the data needed for decoding for multiple epochs
 
